@@ -28,7 +28,7 @@ config.Create(path.join(__dirname, "./sample.env"), (err, data) => {
   if (err !== null) {
     console.log("Error", err);
   } else {
-    config.Get("DB_CONN", "", (err, data) => {
+    config.Get("DB_CONN", "mongodb:xxxx:27017", (err, data) => {
       console.log("DB_CONN =", data);
     });
   };
@@ -56,26 +56,25 @@ Lining up (as per the example above) is entirely optional, as are comments - whi
 ## Usage.
 
 See the ```example``` folder for a full example, runnable from the top level using ```npm start```.
-
 A single set of configuration values is maintained which can be built up and cleared down as required.
 
-### Create
+### Create(filename, callback)
 
-Loads in a file to the current collection. If some have already been called this will append new settings and ovewrite existing ones.
+Loads in a file to the current collection. If some have already been loaded this will append new settings and overwrite existing ones.
 
 ``` javascript
 config.Create("./sample.env", callback);
 ```
 
-### Get
+### Get(key, defaultValue, callback)
 
-Gets the value from the environment, falling back on a config file, then falling back on the given default. This uses callbacks for consistency.
+Gets the value from the environment, falling back on a config file, then falling back to the given default. This uses callbacks for consistency.
 
 ``` javascript
 config.Get("KEY", "Default Value", callback);
 ```
 
-### Clear
+### Clear(callback)
 
 Removes any existing configuration values so the next ```Create``` will start again. This uses callbacks for consistency.
 
@@ -92,11 +91,10 @@ Entries in config files have their keys made uppercase when loaded, so consisten
 ## Caching.
 
 Environment variables are *not* cached and will always reflect current values. Configuration file settings *are* cached and will always reflect the value at launch.
-
 As file settings are cached, performance is not impacted by where the setting comes from.
 
 ## Loading and reloading.
 
-You can call ```Create``` repeatedly if you want, loading from different files each time in order to build up a combined collection. You can also call ```Clear``` to start again at any time.
+You can call ```Create``` repeatedly if you want, layering configs from different files in order to build up a combined collection. You can also call ```Clear``` to start fresh at any time.
 
 Copyright: **K Cartlidge** | License: **MIT**
