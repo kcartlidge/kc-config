@@ -18,6 +18,8 @@ For example your database connection strings and secret keys might be in AWS env
 
 ## Code example.
 
+Further usage is detailed below.
+
 ``` javascript
 const path = require("path");
 const config = require("kc-config");
@@ -35,12 +37,13 @@ config.Create(path.join(__dirname, "./sample.env"), (err, data) => {
 
 ## Configuration file format.
 
-The file is expected to follow an extremely simple format and layout. Setting names ideally should be in capitals (see the note about casing below), and values are trimmed but otherwise untouched.
+The file is expected to follow an extremely simple format and layout. Setting names ideally should be in capitals (but see the note about casing below), and values are trimmed but otherwise untouched.
 
-``` sh
+```
 MODE        = Production
 DB_CONN     = my-long-winded-connection-string:27017
 PAGE_SIZE   = 10
+EMBEDDED    = This has an embedded = which works fine.
 
 # Shows at the top of the web page.
 BANNER      = Version 2 has been released!
@@ -50,18 +53,50 @@ Your setting name is first. This is followed by one or more whitespace character
 
 Lining up (as per the example above) is entirely optional, as are comments - which are lines that start with a hash symbol.
 
+## Usage.
+
+See the ```example``` folder for a full example, runnable from the top level using ```npm start```.
+
+A single set of configuration values is maintained which can be built up and cleared down as required.
+
+### Create
+
+Loads in a file to the current collection. If some have already been called this will append new settings and ovewrite existing ones.
+
+``` javascript
+config.Create("./sample.env", callback);
+```
+
+### Get
+
+Gets the value from the environment, falling back on a config file, then falling back on the given default. This uses callbacks for consistency.
+
+``` javascript
+config.Get("KEY", "Default Value", callback);
+```
+
+### Clear
+
+Removes any existing configuration values so the next ```Create``` will start again. This uses callbacks for consistency.
+
+``` javascript
+config.Clear(callback);
+```
+
 ## A note about casing.
 
-Requests via Get always treat the Key as uppercase. Keys for entries in the config files are also treated as uppercase, so lookups will succeed. Environment variables are not treated as uppercase by default, so unless your environment variables are uppercased already they will be ignored.
+Requests via ```Get``` always treat the Key as uppercase.
 
-Given this disjoint on casing, I suggest you simply restrict yourself to uppercase for every key name whether in a config file or the environment. As it happens, that's what most developers do anyway.
+Entries in config files have their keys made uppercase when loaded, so consistency is assured. Environment variables do *not* have their keys treated as uppercase - you should use uppercase key names in your environment. As it happens, that's what most developers do anyway.
 
-## Performance and timing.
+## Caching.
 
-Environment variables are *not* cached; whenever a setting is requested whose value derives from an environment variable the current value is given.
-
-Configuration file settings *are* cached, and will always reflect the value at launch.
+Environment variables are *not* cached and will always reflect current values. Configuration file settings *are* cached and will always reflect the value at launch.
 
 As file settings are cached, performance is not impacted by where the setting comes from.
+
+## Loading and reloading.
+
+You can call ```Create``` repeatedly if you want, loading from different files each time in order to build up a combined collection. You can also call ```Clear``` to start again at any time.
 
 Copyright: **K Cartlidge** | License: **MIT**
