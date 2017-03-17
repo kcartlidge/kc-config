@@ -18,19 +18,18 @@ For example your database connection strings and secret keys might be in AWS env
 
 ## Code example.
 
-Further usage is detailed below.
+Further usage is detailed below this code example.
 
 ``` javascript
 const path = require("path");
 const config = require("kc-config");
 
-config.Create(path.join(__dirname, "./sample.env"), (err, data) => {
+config.Create(path.join(__dirname, "./sample.env"), (err, settings) => {
   if (err !== null) {
     console.log("Error", err);
   } else {
-    config.Get("DB_CONN", "mongodb:xxxx:27017", (err, data) => {
-      console.log("DB_CONN =", data);
-    });
+    const connectionString = settings.Get("DB_CONN", "");
+    console.log("DB_CONN =", connectionString);
   };
 });
 ```
@@ -60,26 +59,27 @@ A single set of configuration values is maintained which can be built up and cle
 
 ### Create(filename, callback)
 
-Loads in a file to the current collection. If some have already been loaded this will append new settings and overwrite existing ones.
+Loads in a file to the current collection. If some have already been loaded this will append new settings and overwrite existing ones. The callback will be given two parameters, an error code and a ```settings``` object.
 
 ``` javascript
-config.Create("./sample.env", callback);
+config.Create("./sample.env", (err, settings) => {});
 ```
 
-### Get(key, defaultValue, callback)
+The ```settings``` object then has the following:
 
-Gets the value from the environment, falling back on a config file, then falling back to the given default. This uses callbacks for consistency.
+### Get(key, defaultValue)
 
+Gets the value from the environment, falling back on a config file then to the default.
 ``` javascript
-config.Get("KEY", "Default Value", callback);
+const data := config.Get("KEY", "Default Value");
 ```
 
-### Clear(callback)
+### Clear()
 
-Removes any existing configuration values so the next ```Create``` will start again. This uses callbacks for consistency.
+Removes any existing configuration values so the next ```Create``` will start again.
 
 ``` javascript
-config.Clear(callback);
+config.Clear();
 ```
 
 ## A note about casing.
@@ -95,6 +95,6 @@ As file settings are cached, performance is not impacted by where the setting co
 
 ## Loading and reloading.
 
-You can call ```Create``` repeatedly if you want, layering configs from different files in order to build up a combined collection. You can also call ```Clear``` to start fresh at any time.
+As ```Create``` returns a ```settings``` objecy you can call it as often as you like; each time you will get a new instance with the latest file entries. You can also call ```Clear``` to start fresh at any time.
 
 Copyright: **K Cartlidge** | License: **MIT**
